@@ -2,6 +2,8 @@
 /*	1.3 Lachman ONC Test Suite source	*/
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
 #include <math.h>
 
 /*
@@ -21,8 +23,8 @@ double	user[MAXINDEX];
 double	sys[MAXINDEX];
 char	*Prog, *File;
 
-int	getattfmt();
-void	prtstat();
+int	getattfmt(FILE *, int, int);
+void	prtstat(double *, int);
 
 int
 main(argc, argv)

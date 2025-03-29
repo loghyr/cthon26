@@ -2,12 +2,19 @@
 /*
  * cc - front end for C compiler
  */
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
+
 #include <sys/param.h>
 #ifndef major
 #include <sys/types.h>
 #endif
+#include <sys/wait.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <signal.h>
 #ifdef SVR4
 #include <dirent.h>
@@ -25,6 +32,12 @@
 #define	SIGHAND_T	int
 #endif
 
+int getsuf(char *);
+void error(char *s, char *x);
+int nodup(char **l, char *os);
+int callsys(char *f, char **v);
+void dexit(void);
+
 char	*cpp = "/lib/cpp";
 char	*ccom = "/lib/ccom";
 char	*c2 = "/lib/c2";
@@ -35,8 +48,13 @@ char	*crt0 = "/lib/crt0.o";
 char	tmp0[30];		/* big enough for /tmp/ctm%05.5d */
 char	*tmp1, *tmp2, *tmp3, *tmp4, *tmp5;
 char	*outfile;
-char	*savestr(), *strspl(), *setsuf();
-SIGHAND_T	idexit();
+char * savestr(char *);
+char * strspl(char *, char *);
+char * setsuf(char *, int);
+
+typedef void (*sighandler_t)(int);
+sighandler_t idexit(int sig );
+
 char	**av, **clist, **llist, **plist;
 int	cflag, eflag, oflag, pflag, sflag, wflag, Rflag, exflag, proflag;
 int	gflag, Gflag;
@@ -49,8 +67,8 @@ int	nc, nl, np, nxo, na;
 
 #define	cunlink(s)	if (s) unlink(s)
 
-main(argc, argv)
-	char **argv;
+int
+main(int argc, char **argv)
 {
 	char *t;
 	char *assource;
@@ -286,15 +304,16 @@ nocom:
 	dexit();
 }
 
-SIGHAND_T
-idexit()
+sighandler_t
+idexit(int sig)
 {
 
 	eflag = 100;
 	dexit();
 }
 
-dexit()
+void
+dexit(void)
 {
 
 	if (!pflag) {
@@ -308,6 +327,7 @@ dexit()
 	exit(eflag);
 }
 
+void
 error(s, x)
 	char *s, *x;
 {
@@ -321,6 +341,7 @@ error(s, x)
 	eflag++;
 }
 
+int
 getsuf(as)
 char as[];
 {
@@ -342,8 +363,7 @@ char as[];
 }
 
 char *
-setsuf(as, ch)
-	char *as;
+setsuf(char *as, int ch)
 {
 	register char *s, *s1;
 
@@ -355,6 +375,7 @@ setsuf(as, ch)
 	return (s1);
 }
 
+int
 callsys(f, v)
 	char *f, **v;
 {
@@ -383,6 +404,7 @@ callsys(f, v)
 	return ((status>>8) & 0377);
 }
 
+int
 nodup(l, os)
 	char **l, *os;
 {
