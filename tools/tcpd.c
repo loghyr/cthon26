@@ -4,6 +4,8 @@
  *  listens on socket for connection request, then echos back
  *  request from client.
  */
+#pragma GCC diagnostic ignored "-Wold-style-definition"
+
 #define TCP_PORT        3456
 
 #include <stdio.h>

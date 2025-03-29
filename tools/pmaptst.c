@@ -2,6 +2,7 @@
  *	@(#)pmaptst.c	1.3 98/11/30 Connectathon Testsuite
  *	1.3 Lachman ONC Test Suite source
  */
+#pragma GCC diagnostic ignored "-Wold-style-definition"
 
 #include <stdio.h>
 #include <stdlib.h>

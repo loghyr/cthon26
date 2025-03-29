@@ -14,6 +14,7 @@
 #include <string.h>
 #include <unistd.h>
 #endif
+#include "./tests.h"
 
 int
 main(argc, argv)
@@ -21,7 +22,7 @@ main(argc, argv)
 	char **argv;
 {
 	char *comm;
-	extern char *getenv();
+	extern char *getenv(const char *);
 
 	if (argc > 1 && strcmp(argv[1], "-u") == 0) {
 		if ((comm = getenv("UMOUNT")) != NULL)

@@ -4,6 +4,7 @@
  *
  * test statfs for file count
  */
+#pragma GCC diagnostic ignored "-Wold-style-definition"
 
 #if defined (DOS) || defined (WIN32)
 #define DOSorWIN32

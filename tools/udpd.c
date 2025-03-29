@@ -4,6 +4,8 @@
  *  listens on socket for request, then echos back
  *  request from client.
  */
+#pragma GCC diagnostic ignored "-Wold-style-definition"
+
 #define UDP_PORT        3457
 
 #include <stdio.h>

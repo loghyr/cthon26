@@ -3,6 +3,8 @@
  *  client for simple udp ping program.
  *  send request to server, who will echo request back.
  */
+#pragma GCC diagnostic ignored "-Wold-style-definition"
+
 #define UDP_PORT        3457
 
 #include <stdio.h>

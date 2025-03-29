@@ -4,6 +4,7 @@
  *
  * Test portmap broadcast rpc facility
  */
+#pragma GCC diagnostic ignored "-Wold-style-definition"
 
 #include <rpc/rpc.h>
 #if !(defined(SVR4) || defined(HPUX))
@@ -73,7 +74,7 @@ struct rmtcallargs {
 	caddr_t args_ptr;
 	xdrproc_t xdr_args;
 };
-static bool_t xdr_rmtcall_args();
+static bool_t xdr_rmtcall_args(XDR *, struct rmtcallargs *);
 
 struct rmtcallres {
 #ifdef SVR3

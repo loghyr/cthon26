@@ -1,5 +1,6 @@
 /*	@(#)tests.h	1.7 2003/12/01 Connectathon Testsuite	*/
 /*	1.4 Lachman ONC Test Suite source	*/
+#pragma GCC diagnostic ignored "-Wold-style-definition"
 
 #include <errno.h>
 

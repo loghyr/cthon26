@@ -23,12 +23,13 @@
  * However, I am not about to post a copy of anything licensed by AT&T.
  */
 
+#pragma GCC diagnostic ignored "-Wold-style-definition"
 
 /*LINTLIBRARY*/
 #define NULL	0
 #define EOF	(-1)
 #define ERR(s, c)	if(opterr){\
-	extern int write();\
+	extern int write(int, void *, size_t);\
 	char errbuf[2];\
 	errbuf[0] = c; errbuf[1] = '\n';\
 	(void) write(2, argv[0], (unsigned)strlen(argv[0]));\
@@ -46,9 +47,7 @@ int	optopt;
 char	*optarg;
 
 int
-nfs_getopt(argc, argv, opts)
-int	argc;
-char	**argv, *opts;
+nfs_getopt(int argc, char **argv, char *opts)
 {
 	static int sp = 1;
 	register int c;

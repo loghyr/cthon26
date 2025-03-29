@@ -5,6 +5,8 @@
  * test exclusive create
  */
 
+#pragma GCC diagnostic ignored "-Wold-style-definition"
+
 #if defined (DOS) || defined (WIN32)
 #define DOSorWIN32
 #include "../tests.h"

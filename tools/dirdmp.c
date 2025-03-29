@@ -2,6 +2,7 @@
  *	@(#)dirdmp.c	1.8 2003/12/30 Connectathon Testsuite
  *	1.2 Lachman ONC Test Suite source
  */
+#pragma GCC diagnostic ignored "-Wold-style-definition"
 
 #include <sys/param.h>
 #include <sys/types.h>

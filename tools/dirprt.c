@@ -2,6 +2,7 @@
  *	@(#)dirprt.c	1.6 2002/12/13 Connectathon Testsuite
  *	1.2 Lachman ONC Test Suite source
  */
+#pragma GCC diagnostic ignored "-Wold-style-definition"
 
 #ifdef SOLARIS2X
 /* 

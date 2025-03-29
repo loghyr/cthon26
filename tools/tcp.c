@@ -3,6 +3,8 @@
  *  client for simple tcp ping program.
  *  open connection with server, who will echo request back.
  */
+#pragma GCC diagnostic ignored "-Wold-style-definition"
+
 #define TCP_PORT        3456
 
 #include <stdio.h>

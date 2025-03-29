@@ -44,6 +44,7 @@
  *			should not be used if the OS supports a native
  *			64-bit API (e.g., Alpha).
  */
+#pragma GCC diagnostic ignored "-Wold-style-definition"
 
 #if defined(LARGE_LOCKS)
 #undef _FILE_OFFSET_BITS

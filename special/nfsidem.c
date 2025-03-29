@@ -22,6 +22,7 @@
  * Tom Talpey, 1992, Open Software Foundation.
  * Freely redistributable.
  */
+#pragma GCC diagnostic ignored "-Wold-style-definition"
 
 #if defined (DOS) || defined (WIN32)
 #define DOSorWIN32

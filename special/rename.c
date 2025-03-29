@@ -4,6 +4,7 @@
  *
  * rename a file n times
  */
+#pragma GCC diagnostic ignored "-Wold-style-definition"
 
 #if defined (DOS) || defined (WIN32)
 #define DOSorWIN32
