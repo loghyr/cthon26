@@ -168,18 +168,19 @@ mkdirs()
 }
 trap 'echo SIGINT; pkill runcthon; pkill server; exit 1 ' SIGINT
 trap 'echo; echo -n "Done:";  date; exit 2' SIGTERM
-Usage="$0 --mkdirs [dir] |--unmountall|--server|--serverdir|--noudp|--dokrb5|--onlykrb5|--nov4|--onlyv3|--onlyv4|--nov41|--nov42|--minver <ver>|--fsc|--rdma|--onlyrdma|--nolcks|--port <port>|--xprtsec <none|tls|mtls>"
+Usage="$0 --mkdirs [dir] |--unmountall|--server|--serverdir|--noudp|--dokrb5|--onlykrb5|--nov4|--onlyv3|--onlyv4|--dov40|--nov41|--nov42|--minver <ver>|--fsc|--rdma|--onlyrdma|--nolcks|--port <port>|--xprtsec <none|tls|mtls>"
 
 nolcks=0
 noudp=1
 dokrb5=0
 onlykrb5=0
 nov4=0
+dov40=0
 dov41=1
 dov42=1
 onlyv3=0
 onlyv4=0
-minver=0
+minver=1
 fsc=0
 # Note port="2050" for Panasas server
 port=""
@@ -252,6 +253,10 @@ do
 		minver=$2
 		shift
 	;;
+	"--dov40" )
+		dov40=1
+		minver=0
+	;;
 	"--nov41" )
 		dov41=0
 	;;
@@ -298,7 +303,9 @@ do
 		fi
 		if [ "$onlyv3" -ne 1 -a "$onlyrdma" -eq 0 ]; then
 			if [ "$nov4" -eq 0 ]; then
-				runtests -$i $SRV 4 tcp "sys"
+				if [ "$dov40" -eq 1 ]; then
+					runtests -$i $SRV 4 tcp "sys"
+				fi
 				if [ "$dov41" -eq 1 ]; then
 					runtests -$i $SRV 41 tcp "sys"
 				fi
@@ -313,7 +320,9 @@ do
 			fi
 			if [ "$onlyv3" -ne 1 ]; then
 				if [ "$nov4" -eq 0 ]; then
-					runtests -$i $SRV 4 rdma ""
+					if [ "$dov40" -eq 1 ]; then
+						runtests -$i $SRV 4 rdma ""
+					fi
 					if [ "$dov41" -eq 1 ]; then
 						runtests -$i $SRV 41 rdma ""
 					fi
@@ -357,7 +366,9 @@ do
 				fi
 				if [ "$onlyv3" -ne 1 ]; then
 					if [ "$nov4" -eq 0 ]; then
-						runtests -$i $SRV 4 rdma $j
+						if [ "$dov40" -eq 1 ]; then
+							runtests -$i $SRV 4 rdma $j
+						fi
 						if [ "$dov41" -eq 1 ]; then
 							runtests -$i $SRV 41 rdma $j
 						fi
