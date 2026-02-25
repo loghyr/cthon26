@@ -93,6 +93,7 @@ sec=$5
 	fi
 	[ "$fsc" -eq 1 ] && mntargs="$mntargs,fsc"
 	[ -n "$port" ] && mntargs="$mntargs,port=$port"
+	[ -n "$xprtsec" ] && mntargs="$mntargs,xprtsec=$xprtsec"
 
 	mkdir -p $mnt/nfsv$vers$proto || exit 1
 	mntpoint="-m $mnt/nfsv$vers$proto"
@@ -167,7 +168,7 @@ mkdirs()
 }
 trap 'echo SIGINT; pkill runcthon; pkill server; exit 1 ' SIGINT
 trap 'echo; echo -n "Done:";  date; exit 2' SIGTERM
-Usage="$0 --mkdirs [dir] |--unmountall|--server|--serverdir|--noudp|--dokrb5|--onlykrb5|--nov4|--onlyv3|--onlyv4|--nov41|--nov42|--minver <ver>|--fsc|--rdma|--onlyrdma|--nolcks|--port <port>"
+Usage="$0 --mkdirs [dir] |--unmountall|--server|--serverdir|--noudp|--dokrb5|--onlykrb5|--nov4|--onlyv3|--onlyv4|--nov41|--nov42|--minver <ver>|--fsc|--rdma|--onlyrdma|--nolcks|--port <port>|--xprtsec <none|tls|mtls>"
 
 nolcks=0
 noudp=1
@@ -184,6 +185,7 @@ fsc=0
 port=""
 rdma=0
 onlyrdma=0
+xprtsec=""
 while [ -n "$1" ]
 do
 	case $1 in
@@ -255,6 +257,18 @@ do
 	;;
 	"--nov42" )
 		dov42=0
+	;;
+	"--xprtsec" )
+		case $2 in
+			none|tls|mtls )
+				xprtsec=$2
+				shift
+			;;
+			* )
+				echo "'$2' - invalid xprtsec option"
+				echo "$Usage"
+				exit 1
+		esac
 	;;
 	"--help" )
 		echo "$Usage"
