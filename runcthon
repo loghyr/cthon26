@@ -9,16 +9,20 @@
 # ./runcthon --mkdirs /mnt
 # 
 # To run v3, v4.0 and v4.1
-#   ./runcton --server server --serverdirs /export
+#   ./runcton --server server --serverdir /export --dov40 --nov42
 #
 # To run v3, v4.0, v4.1 and v4.2
-#   ./runcton --dov42 --server server --serverdirs /export
+#   ./runcton --server server --serverdir /export --dov40
 #
-# To add multiple security flavors
-#   ./runcton --dokrb5 --server server --serverdirs /export
+# To test multiple security flavors (sys,krb5,krb5i,krb5p)
+#   ./runcton --server server --serverdir /export --dokrb5
 #
-# To only do multiple security flavors
-#   ./runcton --dokrb5 --server server --serverdirs /export
+# Same as above, but without AUTH_SYS
+#   ./runcton --server server --serverdir /export --onlykrb5
+#
+# To test with TLS (assumes tlshd is properly configured and server
+# is specified by FQDN)
+#   ./runcton --server server.example.com --serverdir /export --xprtsec tls
 #
 # To unmount all filesystems (sudo has to be enabled)
 #   ./runcton --unmountall
@@ -27,9 +31,9 @@
 #  ./runcton --help
 #
 
-SRV=fedora9server
+SRV=server
 privatemnts=0
-serverdir="/home/tmp"
+serverdir="/export"
 
 runtests()
 {
