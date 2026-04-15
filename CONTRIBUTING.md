@@ -9,6 +9,46 @@ Contributions follow the Linux kernel's Developer Certificate of
 Origin (DCO) workflow and, for AI-assisted work, the kernel's
 coding-assistants policy.
 
+## The cthon04 preservation rule
+
+**cthon26 treats the inherited cthon04 core as immutable by default.**
+
+The "cthon04 core" is every file and directory that came from the
+cthon04 `proposed/dual-license` branch: `basic/`, `general/`,
+`special/`, `lock/`, `server/`, `tools/`, plus the top-level
+drivers (`Makefile`, `runtests`, `runcthon`, `tests.init`,
+`tests.init.sh`, `tests.h`, `domount.c`, `getopt.c`, `unixdos.h`,
+`cthon04.spec`, `Testitems`, `README`, `READWIN.txt`, `LICENSE.md`,
+`GPL-2.0-only.txt`).
+
+cthon04 is portable across AIX, HP-UX, Solaris, Tru64, BSD, macOS,
+and Linux.  That portability is the project's single most valuable
+asset.  "Harmless" cleanups — formatting, removing `#ifdef WIN32`
+blocks, replacing SCCS headers with SPDX-only headers, reorganising
+output strings — have a real chance of breaking platforms no cthon26
+developer currently tests.  External CI systems also grep for
+specific cthon04 output strings; changing them breaks consumers
+outside this repository.
+
+Bug fixes and improvements to the cthon04 core belong upstream at
+`git://git.linux-nfs.org/projects/steved/cthon04.git` first.
+Downstream (cthon26) inherits the fix via a re-import or
+cherry-pick.  Local drift from upstream creates maintenance debt
+that harms both trees.
+
+If you believe a cthon04 file genuinely needs editing in this tree,
+please open an issue describing the problem and the smallest
+possible fix before sending a PR.  Exceptions are rare.
+
+New work — new tests, new harness code, new documentation — lives
+in directories we own: `nfsv42-tests/`, `xfstests-bridge/`,
+`cthon04-tap`, `docs/`, `.github/`, `README.md`, `CONTRIBUTING.md`,
+`AGENTS.md`.  That boundary is the easy one to stay on the right
+side of.
+
+AI coding assistants have a matching directive in
+[`AGENTS.md`](AGENTS.md).
+
 ## Developer Certificate of Origin (DCO)
 
 Every commit must carry a real `Signed-off-by:` trailer from the
