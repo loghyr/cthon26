@@ -118,12 +118,12 @@ else
     printf '\n======== cthon26 ========\n'
     printf 'Mount: %s    Mode: %s\n\n' "$MOUNT" "$TESTARG"
     if [ $SKIP_CTHON04 -eq 0 ]; then
-        printf '--- cthon04 (basic/general/special/lock) ---\n'
+        printf '%s\n' '--- cthon04 (basic/general/special/lock) ---'
         run_cthon04
         printf '\n'
     fi
     if [ $SKIP_NFSV42 -eq 0 ]; then
-        printf '--- nfsv42-tests (NFSv4 / 4.1 / 4.2 syscall-level) ---\n'
+        printf '%s\n' '--- nfsv42-tests (NFSv4 / 4.1 / 4.2 syscall-level) ---'
         run_nfsv42
         printf '\n'
     fi
