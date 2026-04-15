@@ -61,17 +61,49 @@ them upstream into the `tests/nfs/` tree of kdave/xfstests.
 
 ### Prerequisites
 
+- **xfstests build dependencies.**  xfstests' own C helpers
+  require a long list of filesystem-development headers even
+  when you only intend to run the `nfs` group.  Install them
+  BEFORE `make`:
+
+  ```
+  # Fedora / RHEL / CentOS / Rocky
+  sudo dnf install -y xfsprogs-devel e2fsprogs-devel \
+       attr libattr-devel libacl-devel libuuid-devel gdbm-devel \
+       libaio-devel openssl-devel gawk
+
+  # Debian / Ubuntu
+  sudo apt install -y xfslibs-dev libattr1-dev libacl1-dev \
+       libaio-dev libgdbm-dev libuuid1 uuid-dev attr acl \
+       quota xfsprogs libtool-bin libssl-dev gawk
+  ```
+
+  Symptom if missing:
+
+  ```
+  FATAL ERROR: cannot find a valid <xfs/xfs.h> header file.
+  Run "make install-dev" from the xfsprogs source.
+  ```
+
+  That error message is misleading -- `make install-dev` inside
+  the xfstests tree does nothing; you need the xfsprogs
+  **headers package** from your distribution, not an xfsprogs
+  re-install.
+
 - A working xfstests checkout:
   ```
   git clone https://github.com/kdave/xfstests.git
   cd xfstests
-  make          # installs a few C helpers used by the framework
+  make          # builds the framework's C helpers; requires the
+                # dev headers installed above
   ```
+
 - A built cthon26/nfsv42-tests:
   ```
   cd /path/to/cthon26/nfsv42-tests
   make
   ```
+
 - An NFSv4.2 mount you can write to.  xfstests itself insists on
   a real mount for its NFS group; tmpfs smoke tests do not
   exercise the protocol at all.
