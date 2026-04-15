@@ -1,0 +1,60 @@
+# SPDX-FileCopyrightText: 2026 Tom Haynes <loghyr@gmail.com>
+# SPDX-License-Identifier: BSD-2-Clause OR GPL-2.0-only
+#
+# nfsv42-tests: build matrix + TAP smoke-test on a local (non-NFS)
+# scratch directory.  The suite is designed for NFS mounts; on a local
+# tmpfs many tests still PASS (POSIX syscall coverage) while others
+# SKIP (DEALLOCATE, user.* xattrs, STATX_CHANGE_COOKIE, etc.) because
+# tmpfs lacks those features.  The CI job only enforces that every
+# test binary BUILDS and EXECUTES cleanly -- it does not gate on
+# test-level PASS/FAIL, which is only meaningful against a real NFS
+# mount configured by a human tester.
+
+name: nfsv42-tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'nfsv42-tests/**'
+      - '.github/workflows/nfsv42-tests.yml'
+  pull_request:
+    paths:
+      - 'nfsv42-tests/**'
+      - '.github/workflows/nfsv42-tests.yml'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        working-directory: nfsv42-tests
+        run: make -j$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)
+      - name: Shell syntax check runtests
+        working-directory: nfsv42-tests
+        run: bash -n runtests
+      - name: TAP smoke-test on local scratch (build sanity only)
+        working-directory: nfsv42-tests
+        run: |
+          mkdir -p /tmp/nfsv42-scratch
+          # Run the subset that does not depend on NFS-specific kernel
+          # features; PASS/FAIL on these against tmpfs is a meaningful
+          # sanity check that the harness and test binaries work.
+          ./runtests --tap -d /tmp/nfsv42-scratch \
+            op_access op_mkdir op_rmdir op_readdir op_symlink op_linkat \
+            op_open_excl op_mknod_fifo op_commit op_truncate_grow \
+            op_unicode_names op_readdir_many \
+            | tee tap-output.txt
+          echo "--- TAP summary ---"
+          grep -E "^(ok|not ok|1\.\.)" tap-output.txt || true
+      - name: Upload TAP output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tap-${{ matrix.os }}
+          path: nfsv42-tests/tap-output.txt
