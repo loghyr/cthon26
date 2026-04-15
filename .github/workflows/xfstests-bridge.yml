@@ -65,8 +65,7 @@ jobs:
           wrong=0
           for f in xfstests-bridge/tests/nfs/*.out; do
             num=$(basename "$f" .out)
-            expected="QA output created by $num
-Silence is golden."
+            expected=$(printf 'QA output created by %s\nSilence is golden.' "$num")
             if [ "$(cat "$f")" != "$expected" ]; then
               echo "::error::unexpected content in $f"
               wrong=$((wrong + 1))
