@@ -328,9 +328,11 @@ matching xfstests wrapper:
    - SPDX header (keep `BSD-2-Clause OR GPL-2.0-only`)
    - `FS QA Test No. NNN` line
    - Short description matching the cthon26 binary's purpose
-   - `_begin_fstest GROUPS` — always include `auto nfs`; add
-     `quick` if the test reliably completes in under ~1 second
-     on a local mount
+   - `_begin_fstest GROUPS` — always include `auto nfs cthon26`;
+     add `quick` if the test reliably completes in under ~1 second
+     on a local mount.  Do NOT add a `_supported_fs nfs` line — it
+     was removed from modern xfstests; the `nfs` group tag on
+     `_begin_fstest` is now the canonical fs-type gate.
    - `_require_cthon26_binary NAME`
    - `_cthon26_run NAME` (or `_cthon26_run_args NAME -S server`
      if the test needs extra flags)
@@ -342,7 +344,9 @@ matching xfstests wrapper:
 5. **Sanity-check:** `bash -n xfstests-bridge/tests/nfs/NNN`
 
 6. **Re-run `install.sh`** to sync the new files into your
-   xfstests tree.
+   xfstests tree, then `cd $XFSTESTS && make` to regenerate
+   `tests/nfs/group.list` so `./check -g cthon26` picks up the new
+   number.
 
 7. **Run the wrapper:** `./check -nfs nfs/NNN`
 
