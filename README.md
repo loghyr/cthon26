@@ -23,28 +23,50 @@ cthon26 adds:
   inherited cthon04 files keep their existing Connectathon and
   Lachman SCCS headers, covered by the top-level `LICENSE.md`
   (pending rightsholder approval per the proposal note).
-- Forthcoming (Phase 1): a unified TAP13-based harness so every
-  test emits `ok`/`not ok`/`# SKIP` lines consumable by `prove`,
-  `tappy`, and any CI system that speaks TAP.
+- TAP13 output across both halves of the tree (Phase 1 — shipped):
+  - Every `nfsv42-tests/op_*` binary emits per-case TAP when
+    invoked with `NFSV42_TESTS_TAP=1` in the environment.
+  - `nfsv42-tests/runtests --tap` aggregates the op_* suite into
+    one meta-TAP stream.
+  - `./cthon04-tap [group ...]` wraps the cthon04 groups
+    (`basic/`, `general/`, `special/`, `lock/`) and emits one
+    TAP result per group, with the group's full output captured
+    as `#`-prefixed diagnostics.
+  - Both streams feed `prove`, `tappy`, and any CI system that
+    speaks TAP13.
 - Forthcoming (Phase 2): an `xfstests-bridge/` that exposes every
   cthon26 test through the `xfstests` runner under the `nfs` group,
   giving the Linux filesystem-testing community drop-in access.
 
 ## Quick start
 
-Identical to cthon04 for now:
+The cthon04 core, unchanged:
 
 ```
 make
 ./runtests [-t basic | general | special | lock] [-d MOUNTPOINT]
 ```
 
-For the NFSv4.x tests:
+The NFSv4.x tests:
 
 ```
 cd nfsv42-tests
 make
 ./runtests -d /path/to/nfsv4.2/mount
+```
+
+TAP13 across the whole tree:
+
+```
+# cthon04 groups as TAP, one result per group
+./cthon04-tap -d /path/to/nfs/mount
+
+# NFSv4.x syscall-level tests as TAP, one result per case
+./nfsv42-tests/runtests --tap -d /path/to/nfs/mount
+
+# Parallel via prove (nfsv42-tests side; cthon04 groups have
+# internal ordering dependencies and stay serial)
+(cd nfsv42-tests && make check-prove JOBS=$(nproc))
 ```
 
 See [`nfsv42-tests/README.md`](nfsv42-tests/README.md) for NFSv4.x
@@ -61,9 +83,12 @@ cthon26/
   CONTRIBUTING.md      ← contribution rules, including AI-assistance attribution
   basic/ general/ special/ lock/   ← cthon04 test groups, unchanged
   server/ tools/       ← cthon04 support code
-  runcthon, runtests   ← cthon04 drivers; TAP adapter planned in Phase 1
+  runcthon, runtests   ← cthon04 drivers (unchanged)
+  cthon04-tap          ← TAP13 wrapper for cthon04 test groups
   nfsv42-tests/        ← modern NFSv4.x syscall-level tests (imported as a
-                         subtree; see its own README for test details)
+                         subtree; see its own README for test details and
+                         the NFSV42_TESTS_TAP env var)
+  .github/workflows/   ← GitHub Actions CI (nfsv42-tests build matrix)
 ```
 
 ## Relationship to upstream cthon04
