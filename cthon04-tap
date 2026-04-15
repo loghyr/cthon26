@@ -40,6 +40,19 @@ SCRATCH="/tmp/cthon04-scratch"
 TESTARG="-t"
 SELECTED=""
 
+#
+# Clean up per-group scratch sub-directories on any exit (normal,
+# interrupt, or error).  Without this trap, Ctrl-C leaves
+# $SCRATCH/<group>.$$ dirs behind, which accumulate over multiple
+# aborted runs.  Only touches directories created by THIS process
+# (matched via the $$ suffix) so other cthon04-tap invocations are
+# not affected.
+#
+cleanup() {
+    rm -rf "$SCRATCH"/*."$$" 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM
+
 usage() {
     sed -n '4,30p' "$0" | sed 's/^# \{0,1\}//'
 }

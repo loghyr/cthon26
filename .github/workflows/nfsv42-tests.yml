@@ -23,6 +23,17 @@ on:
       - 'nfsv42-tests/**'
       - '.github/workflows/nfsv42-tests.yml'
 
+# Least-privilege GITHUB_TOKEN: read repo contents and upload
+# workflow artifacts.  Neither requires write access.
+permissions:
+  contents: read
+
+# Cancel a prior run when a new push lands on the same ref, so
+# rapid iteration does not stack redundant runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     strategy:

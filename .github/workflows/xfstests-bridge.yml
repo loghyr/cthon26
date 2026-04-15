@@ -23,6 +23,17 @@ on:
       - 'xfstests-bridge/**'
       - '.github/workflows/xfstests-bridge.yml'
 
+# Least-privilege GITHUB_TOKEN.  The lint job only reads repo files.
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same ref.  We iterated this
+# workflow four times in one minute during development; without
+# cancellation the superseded runs all ran to completion.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     runs-on: ubuntu-latest
