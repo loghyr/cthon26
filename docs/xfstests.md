@@ -149,7 +149,20 @@ without re-copying):
 ```
 
 Both modes copy/link `common/cthon26` into `xfstests/common/` and
-every `tests/nfs/NNN[.out]` into `xfstests/tests/nfs/`.
+every `tests/nfs/NNN[.out]` into `xfstests/tests/nfs/`.  They also
+append a `cthon26` line to `xfstests/doc/group-names.txt` (if not
+already present) — xfstests' build refuses to generate a group index
+that references undocumented group tags.
+
+After running `install.sh`, rebuild xfstests to regenerate the
+per-directory `group.list`:
+
+```
+cd /path/to/xfstests && make
+```
+
+Without that rebuild, `./check -g cthon26` reports
+`Group "cthon26" is empty or not defined?`.
 
 Flags:
 - `--dry-run`: print what would happen, don't touch anything.
