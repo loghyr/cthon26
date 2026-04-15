@@ -58,12 +58,23 @@ while [ $# -gt 0 ]; do
     esac
 done
 
+if [ $SKIP_CTHON04 -eq 1 ] && [ $SKIP_NFSV42 -eq 1 ]; then
+    echo "runcthon26: both --skip-cthon04 and --skip-nfsv42 given," \
+         "nothing to do" >&2
+    exit 2
+fi
+
 # Resolve MOUNT to an absolute path so that cthon04's `cd basic;
 # sh runtests $TESTARG` still finds it.
 case "$MOUNT" in
     /*) ;;
     *)  MOUNT=$(cd "$MOUNT" && pwd);;
 esac
+
+if [ ! -d "$MOUNT" ]; then
+    echo "runcthon26: mount point not a directory: $MOUNT" >&2
+    exit 2
+fi
 
 cthon04_worst=0
 nfsv42_worst=0
