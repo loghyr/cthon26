@@ -165,21 +165,28 @@ like an xfstests checkout (missing `tests/nfs/` or `common/`).
 
 ```
 cd /path/to/xfstests
-./check -nfs -g nfs
+./check -nfs -g cthon26
 ```
 
-`./check -nfs` limits xfstests to the NFS group directory (no ext4,
-xfs, btrfs tests).  `-g nfs` restricts to tests tagged with the
-`nfs` group — redundant with `-nfs` but explicit.
+Every cthon26 wrapper carries the `cthon26` group tag.  Filtering
+on it selects ONLY the cthon26 tests, not the dozens of upstream
+xfstests NFS tests that share `tests/nfs/`.
+
+If you want both suites combined — cthon26 wrappers AND upstream
+NFS coverage — use `-g nfs` instead.  That picks up every test
+tagged `nfs` across the entire xfstests `tests/nfs/` directory,
+including stress / long-running / multi-minute tests that are not
+part of cthon26.  Expect several minutes of wall time.
 
 ### Fast subset
 
 ```
-./check -nfs -g nfs,quick
+./check -nfs -g cthon26,quick
 ```
 
-The `quick` group is a cthon26-side tag: tests that complete in
-well under a second on a local mount.  See the test list in
+Intersection of `cthon26` and `quick`: cthon26 wrappers whose
+underlying tests complete in well under a second each.  See the
+test list in
 [`xfstests-bridge/README.md`](../xfstests-bridge/README.md) for
 which tests are tagged `quick`.
 
