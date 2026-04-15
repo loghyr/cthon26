@@ -40,32 +40,46 @@ cthon26 adds:
 
 ## Quick start
 
-The cthon04 core, unchanged:
+**Run BOTH halves with one command:**
 
 ```
-make
-./runtests [-t basic | general | special | lock] [-d MOUNTPOINT]
+make                        # build cthon04 groups
+make -C nfsv42-tests        # build nfsv42-tests binaries
+./runcthon26 -d /path/to/nfsv4.2/mount
 ```
 
-The NFSv4.x tests:
+`runcthon26` is a thin cthon26-owned driver that invokes the
+unchanged cthon04 `runtests` for `basic/general/special/lock`,
+then invokes `nfsv42-tests/runtests`, and prints a combined
+summary.  It does not modify any cthon04-core file.  Pass `--tap`
+for a concatenated TAP13 stream instead of the classic banner
+format.
+
+**Individual halves (classic invocations, unchanged):**
 
 ```
+# cthon04 only
+./runtests -a -t /path/to/nfs/mount
+
+# NFSv4.x tests only
 cd nfsv42-tests
-make
 ./runtests -d /path/to/nfsv4.2/mount
 ```
 
-TAP13 across the whole tree:
+**TAP13 output**, for CI or `prove`:
 
 ```
-# cthon04 groups as TAP, one result per group
+# Combined TAP stream from both halves via runcthon26 --tap:
+./runcthon26 --tap -d /path/to/nfs/mount
+
+# cthon04 groups as TAP, one result per group:
 ./cthon04-tap -d /path/to/nfs/mount
 
-# NFSv4.x syscall-level tests as TAP, one result per case
+# NFSv4.x syscall-level tests as TAP, one result per case:
 ./nfsv42-tests/runtests --tap -d /path/to/nfs/mount
 
 # Parallel via prove (nfsv42-tests side; cthon04 groups have
-# internal ordering dependencies and stay serial)
+# internal ordering dependencies and stay serial):
 (cd nfsv42-tests && make check-prove JOBS=$(nproc))
 ```
 
@@ -107,6 +121,7 @@ cthon26/
   server/ tools/       ← cthon04 support code
   runcthon, runtests   ← cthon04 drivers (unchanged)
   cthon04-tap          ← TAP13 wrapper for cthon04 test groups
+  runcthon26           ← unified driver: both halves, one command
   nfsv42-tests/        ← modern NFSv4.x syscall-level tests (imported as a
                          subtree; see its own README for test details and
                          the NFSV42_TESTS_TAP env var)

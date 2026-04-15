@@ -120,6 +120,7 @@ Freely (subject to the usual review):
 | `nfsv42-tests/` | Modern NFSv4.x syscall-level tests. |
 | `xfstests-bridge/` | xfstests wrappers and helpers. |
 | `cthon04-tap` | TAP13 wrapper over the cthon04 groups.  This file IS new and is cthon26's to edit. |
+| `runcthon26` | Unified driver running both halves.  New, cthon26-owned. |
 | `docs/` | Deep-dive guides (TAP, xfstests). |
 | `.github/workflows/` | CI workflows. |
 | `README.md` | Top-level cthon26 framing.  Explicitly ours, not cthon04's. |
