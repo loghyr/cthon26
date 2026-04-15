@@ -23,6 +23,7 @@ all: domount getopt
 	cd special; $(MAKE)
 	cd tools; $(MAKE)
 	cd lock; $(MAKE)
+	cd nfsv42-tests; $(MAKE)
 	if test ! -x runtests; then chmod a+x runtests; fi
 
 lint:
@@ -45,6 +46,7 @@ clean:
 	cd special; $(MAKE) clean
 	cd tools; $(MAKE) clean
 	cd lock; $(MAKE) clean
+	cd nfsv42-tests; $(MAKE) clean
 
 copy: mknewdirs
 	cp -f domount $(COPYFILES) $(DESTDIR)
