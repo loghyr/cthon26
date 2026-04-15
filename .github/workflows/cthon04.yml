@@ -1,0 +1,96 @@
+# SPDX-FileCopyrightText: 2026 Tom Haynes <loghyr@gmail.com>
+# SPDX-License-Identifier: BSD-2-Clause OR GPL-2.0-only
+#
+# cthon04: build the 1986-era Connectathon NFS testsuite and sanity-
+# check the cthon04-tap TAP13 wrapper.  The cthon04 tests are
+# designed for real NFS mounts; on a local tmpfs most of them fail
+# (they probe NFS-specific server behavior).  This workflow only
+# enforces that everything builds and that cthon04-tap's framing
+# produces valid TAP -- it does not gate on per-test PASS/FAIL.
+#
+# Only Ubuntu is in the matrix.  macOS 14+ has retired several
+# interfaces cthon04's 1980s-era code relied on; a separate
+# investigation would be needed to restore that build.  BSD and
+# Solaris builds remain valuable for cthon04 portability but are
+# out of scope for GitHub-hosted runners.
+
+name: cthon04
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'basic/**'
+      - 'general/**'
+      - 'special/**'
+      - 'lock/**'
+      - 'server/**'
+      - 'tools/**'
+      - 'cthon04-tap'
+      - 'Makefile'
+      - 'tests.h'
+      - 'tests.init*'
+      - 'runcthon'
+      - 'runtests'
+      - '.github/workflows/cthon04.yml'
+  pull_request:
+    paths:
+      - 'basic/**'
+      - 'general/**'
+      - 'special/**'
+      - 'lock/**'
+      - 'server/**'
+      - 'tools/**'
+      - 'cthon04-tap'
+      - 'Makefile'
+      - 'tests.h'
+      - 'tests.init*'
+      - 'runcthon'
+      - 'runtests'
+      - '.github/workflows/cthon04.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax check cthon04-tap
+        run: bash -n cthon04-tap && sh -n cthon04-tap
+      - name: Shell syntax check runtests drivers
+        run: |
+          for f in runtests runcthon basic/runtests general/runtests \
+                   special/runtests lock/runtests; do
+            [ -f "$f" ] && bash -n "$f"
+          done
+      - name: Build cthon04
+        run: |
+          # cthon04's Makefile descends into basic/general/special/lock.
+          make -j$(nproc) 2>&1 | tee build.log
+      - name: Smoke-test cthon04-tap TAP framing
+        run: |
+          # Run basic/ against tmpfs.  Tests will fail (they need NFS),
+          # but cthon04-tap should still produce valid TAP13: a plan
+          # line and one ok/not ok per group, with diagnostics prefixed.
+          mkdir -p /tmp/cthon04-scratch
+          # Non-zero exit expected -- we only care about TAP framing.
+          set +e
+          ./cthon04-tap -d /tmp/cthon04-scratch basic > tap-output.txt 2>&1
+          set -e
+          echo "--- captured TAP ---"
+          cat tap-output.txt
+          # Framing assertion: first non-# non-empty line must be a
+          # TAP plan or the TAP version directive.
+          head -3 tap-output.txt | grep -qE '^(TAP version 13|1\.\.[0-9]+)$' \
+            || { echo "cthon04-tap did not emit TAP framing" >&2; exit 1; }
+      - name: Upload TAP output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cthon04-tap-output
+          path: tap-output.txt
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cthon04-build-log
+          path: build.log
