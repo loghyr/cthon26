@@ -73,6 +73,28 @@ See [`nfsv42-tests/README.md`](nfsv42-tests/README.md) for NFSv4.x
 mount preparation, Kerberos setup, TLS, and interpreting `NOTE:`
 lines reported by the newer tests.
 
+## Documentation
+
+- [`docs/tap.md`](docs/tap.md) — deep-dive guide to running cthon26
+  with TAP13 output.  Covers the three entry points
+  (`NFSV42_TESTS_TAP=1`, `runtests --tap`, `prove -j N`), plus
+  `cthon04-tap`, CI integration examples (GitHub Actions, GitLab
+  CI, Jenkins), and troubleshooting.
+- [`docs/xfstests.md`](docs/xfstests.md) — deep-dive guide to
+  running cthon26 under the `xfstests` / `fstests` harness via
+  the `xfstests-bridge/`.  Covers installation (copy vs symlink),
+  `local.config` setup, Kerberos/TLS mounts, debugging failures
+  via `.out.bad` and `.full`, contributing new wrappers, and the
+  path to upstream submission.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — contribution rules,
+  including the kernel-style `Assisted-by:` trailer for
+  AI-assisted commits.
+- [`nfsv42-tests/README.md`](nfsv42-tests/README.md) — per-test
+  descriptions and environmental NOTEs (chown/idmap, Kerberos,
+  renameat2 passthrough, `-m` strict mountstats).
+- [`xfstests-bridge/README.md`](xfstests-bridge/README.md) — quick
+  install and run for the xfstests bridge.
+
 ## Directory layout
 
 ```
@@ -88,7 +110,11 @@ cthon26/
   nfsv42-tests/        ← modern NFSv4.x syscall-level tests (imported as a
                          subtree; see its own README for test details and
                          the NFSV42_TESTS_TAP env var)
-  .github/workflows/   ← GitHub Actions CI (nfsv42-tests build matrix)
+  xfstests-bridge/     ← xfstests-compatible wrappers for every
+                         nfsv42-tests binary (tests 900-928)
+  docs/                ← deep-dive guides (TAP, xfstests)
+  .github/workflows/   ← GitHub Actions CI (three path-filtered workflows:
+                         nfsv42-tests, cthon04, xfstests-bridge)
 ```
 
 ## Relationship to upstream cthon04
