@@ -108,12 +108,72 @@ run_nfsv42_tap() {
 # --- driver --------------------------------------------------------------
 
 if [ $TAP -eq 1 ]; then
-    # Two separate TAP streams concatenated.  Each emits its own
-    # "TAP version 13" + "1..N" so `prove` can consume them as
-    # sequential inputs via `prove --exec cat tap-file`, or a
-    # tester can pipe the combined stream into a TAP-aware log.
-    [ $SKIP_CTHON04 -eq 1 ] || run_cthon04_tap
-    [ $SKIP_NFSV42 -eq 1 ]  || run_nfsv42_tap
+    #
+    # Emit ONE coherent TAP13 stream that combines both halves.
+    # Each half's TAP output is captured to a temp file, their
+    # "TAP version 13" and "1..N" plan lines are stripped, and the
+    # nfsv42-tests half's test numbers are renumbered to continue
+    # from where the cthon04 half left off.  A single parent
+    # "TAP version 13" line starts the stream and a single "1..N"
+    # plan ends it.  `prove -e cat` can consume the result directly
+    # without parse errors.
+    #
+    tap1=$(mktemp 2>/dev/null || mktemp -t cthon04-tap.XXXXXX)
+    tap2=$(mktemp 2>/dev/null || mktemp -t nfsv42-tap.XXXXXX)
+    trap 'rm -f "$tap1" "$tap2"' EXIT
+
+    if [ $SKIP_CTHON04 -eq 0 ]; then
+        set +e
+        "$HERE/cthon04-tap" -d "$MOUNT" -a "$TESTARG" > "$tap1" 2>&1
+        cthon04_worst=$?
+        set -e
+    fi
+    if [ $SKIP_NFSV42 -eq 0 ]; then
+        set +e
+        "$HERE/nfsv42-tests/runtests" --tap -d "$MOUNT" > "$tap2" 2>&1
+        nfsv42_worst=$?
+        set -e
+    fi
+
+    # grep -c with zero matches prints "0" AND exits 1.  Suppress
+    # the non-zero exit with "|| true" (not "|| echo 0" which
+    # would append a second "0" and break the arithmetic).
+    n1=$(grep -cE '^(ok|not ok) [0-9]+' "$tap1" 2>/dev/null || true)
+    n2=$(grep -cE '^(ok|not ok) [0-9]+' "$tap2" 2>/dev/null || true)
+    : "${n1:=0}"
+    : "${n2:=0}"
+    total=$((n1 + n2))
+
+    printf 'TAP version 13\n'
+    printf '# cthon26 under %s (TESTARG=%s)\n' "$MOUNT" "$TESTARG"
+    printf '1..%d\n' "$total"
+
+    # cthon04 half: strip "TAP version" and "1..N" plan lines, keep
+    # everything else (test numbering already starts at 1).
+    if [ $SKIP_CTHON04 -eq 0 ]; then
+        grep -vE '^TAP version|^1\.\.' "$tap1" || true
+    fi
+
+    # nfsv42 half: same strip, plus renumber test IDs to continue
+    # from n1+1.  awk renumbers lines matching "^ok NN" or
+    # "^not ok NN" by adding the offset; anything else passes
+    # through unchanged.
+    if [ $SKIP_NFSV42 -eq 0 ]; then
+        awk -v offset="$n1" '
+            /^TAP version/ || /^1\.\./ { next }
+            /^ok [0-9]+ / {
+                sub(/^ok [0-9]+/, "ok " ($2 + offset))
+                print
+                next
+            }
+            /^not ok [0-9]+ / {
+                sub(/^not ok [0-9]+/, "not ok " ($3 + offset))
+                print
+                next
+            }
+            { print }
+        ' "$tap2"
+    fi
 else
     printf '\n======== cthon26 ========\n'
     printf 'Mount: %s    Mode: %s\n\n' "$MOUNT" "$TESTARG"
