@@ -12,8 +12,9 @@
 #                [--tap]
 #
 #   -d MOUNTPOINT   NFS mount point (default: current directory).
-#                   Passed to cthon04 as NFSTESTDIR via tests.init
-#                   mechanism, and to nfsv42-tests as -d.
+#                   cthon04 receives MOUNTPOINT/cthon04-test as
+#                   NFSTESTDIR (a subdirectory it can safely rm -rf).
+#                   nfsv42-tests receives MOUNTPOINT via -d.
 #   -t              cthon04 timing mode (default).
 #   -f              cthon04 functional-only mode.
 #   --skip-cthon04  skip the classic groups (nfsv42 only).
@@ -82,12 +83,14 @@ nfsv42_worst=0
 # --- cthon04 half --------------------------------------------------------
 
 run_cthon04() {
-    # cthon04's runtests expects either positional args or
-    # tests.init to be sourced.  We pass "-a $TESTARG $MOUNT" which
-    # matches the 3-positional form (TESTS TESTARG TESTPATH) and
-    # does not touch the cthon04 runtests source.
+    # cthon04's top-level runtests does "rm -rf $NFSTESTDIR" before
+    # each test group, so NFSTESTDIR must be a dedicated subdirectory
+    # of the mount point -- never the mount point itself.  Pass
+    # $MOUNT/cthon04-test as TESTPATH so cthon04 can safely create
+    # and destroy it without touching the rest of the mount.
+    CTHON04_TESTDIR="$MOUNT/cthon04-test"
     set +e
-    (cd "$HERE" && sh ./runtests -a "$TESTARG" "$MOUNT")
+    (cd "$HERE" && sh ./runtests -a "$TESTARG" "$CTHON04_TESTDIR")
     cthon04_worst=$?
     set -e
 }
