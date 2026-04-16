@@ -215,7 +215,7 @@ EOF
 cat <<\EOF >>$Initfile
 # Use with BSD systems.
 CC=cc
-CFLAGS=`echo -Duse_directs -DBSD`
+CFLAGS=`echo -Duse_directs -DBSD -DSTDARG`
 MOUNT=/sbin/mount
 UMOUNT=/sbin/umount
 EOF
