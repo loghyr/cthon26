@@ -149,7 +149,7 @@ static void case_chmod_timestamps(void)
 	if (fd < 0) { complain("case3: create: %s", strerror(errno)); return; }
 	close(fd);
 
-	usleep(50000);
+	{ struct timespec _ts = { 0, 50000000L }; nanosleep(&_ts, NULL); }
 	struct stat st_before;
 	if (stat(a, &st_before) != 0) {
 		complain("case3: stat before: %s", strerror(errno));
@@ -157,7 +157,7 @@ static void case_chmod_timestamps(void)
 		return;
 	}
 
-	usleep(50000);
+	{ struct timespec _ts = { 0, 50000000L }; nanosleep(&_ts, NULL); }
 	if (chmod(a, 0600) != 0) {
 		complain("case3: chmod: %s", strerror(errno));
 		unlink(a);
@@ -250,7 +250,7 @@ static void case_chown_timestamps(void)
 	if (fd < 0) { complain("case6: create: %s", strerror(errno)); return; }
 	close(fd);
 
-	usleep(50000);
+	{ struct timespec _ts = { 0, 50000000L }; nanosleep(&_ts, NULL); }
 	struct stat st_before;
 	if (stat(a, &st_before) != 0) {
 		complain("case6: stat before: %s", strerror(errno));
@@ -258,7 +258,7 @@ static void case_chown_timestamps(void)
 		return;
 	}
 
-	usleep(50000);
+	{ struct timespec _ts = { 0, 50000000L }; nanosleep(&_ts, NULL); }
 	if (chown(a, getuid(), getgid()) != 0) {
 #ifdef __linux__
 		if (errno == EINVAL) {

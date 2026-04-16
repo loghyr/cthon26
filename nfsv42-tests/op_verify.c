@@ -227,7 +227,7 @@ static void case_mtime_after_write(void)
 	}
 
 	/* Small delay to ensure mtime can advance. */
-	usleep(50000);
+	{ struct timespec _ts = { 0, 50000000L }; nanosleep(&_ts, NULL); }
 
 	char buf[64];
 	memset(buf, 'M', sizeof(buf));
