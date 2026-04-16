@@ -134,14 +134,16 @@ next:
 		complain("case1: lstat: %s", strerror(errno));
 		goto out;
 	}
-	if (st.st_birthtimespec.tv_sec == 0
-	    && st.st_birthtimespec.tv_nsec == 0) {
+	if (st.st_birthtimespec.tv_sec <= 0) {
 		/*
 		 * Server or FS does not surface time_create.  Not a
 		 * failure -- NFSv4.2 servers are free not to track it.
+		 * FreeBSD's NFS client sets tv_sec = -1 (VNOVAL) when
+		 * the server does not return time_create; zero is the
+		 * Linux/POSIX "not set" convention.
 		 */
 		skip("%s: server did not return time_create "
-		     "(st_birthtimespec is zero)",
+		     "(st_birthtimespec not available)",
 		     myname);
 	}
 
@@ -180,8 +182,7 @@ next:
 	} else {
 		struct stat st2;
 		if (lstat(name, &st2) == 0) {
-			if (st2.st_birthtimespec.tv_sec == 0
-			    && st2.st_birthtimespec.tv_nsec == 0) {
+			if (st2.st_birthtimespec.tv_sec <= 0) {
 				complain("case4: btime missing after "
 					 "utimensat");
 			} else if (st2.st_birthtimespec.tv_sec
