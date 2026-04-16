@@ -20,8 +20,7 @@
  */
 
 #define _XOPEN_SOURCE 700
-#define _XOPEN_SOURCE 700
-#define _GNU_SOURCE /* Linux: SEEK_HOLE/DATA live in <unistd.h> */
+#define _GNU_SOURCE /* Linux: SEEK_HOLE/DATA also available on FreeBSD 10+ */
 
 #include "tests.h"
 
