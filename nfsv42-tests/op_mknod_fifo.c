@@ -51,7 +51,7 @@
  * ACCESS / GETATTR on an NF4FIFO object, not NFS I/O transfer.
  */
 
-#define _POSIX_C_SOURCE 200809L
+#define _XOPEN_SOURCE 700
 
 #include "tests.h"
 

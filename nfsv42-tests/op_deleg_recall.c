@@ -39,7 +39,7 @@
  * cb_recall_probe installed alongside this binary in PATH.
  */
 
-#define _POSIX_C_SOURCE 200809L
+#define _XOPEN_SOURCE 700
 
 #include "tests.h"
 

@@ -35,7 +35,7 @@
  * fail, the bug is narrower than "all mutating dir ops."
  */
 
-#define _POSIX_C_SOURCE 200809L
+#define _XOPEN_SOURCE 700
 
 #include "tests.h"
 

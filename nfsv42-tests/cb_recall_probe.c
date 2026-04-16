@@ -43,7 +43,7 @@
  *   last component as the CLAIM_NULL filename.
  */
 
-#define _POSIX_C_SOURCE 200809L
+#define _XOPEN_SOURCE 700
 
 #include <arpa/inet.h>
 #include <errno.h>

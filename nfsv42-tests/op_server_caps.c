@@ -34,7 +34,7 @@
  *   EXCHGID4_FLAG_USE_PNFS_DS         0x00040000  pNFS DS role
  */
 
-#define _POSIX_C_SOURCE 200809L
+#define _XOPEN_SOURCE 700
 
 #include "tests.h"
 

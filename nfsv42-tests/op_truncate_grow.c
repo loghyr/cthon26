@@ -46,7 +46,7 @@
  * case 3 is Linux / FreeBSD / macOS 10.15+ only.
  */
 
-#define _POSIX_C_SOURCE 200809L
+#define _XOPEN_SOURCE 700
 #define _GNU_SOURCE
 
 #include "tests.h"
