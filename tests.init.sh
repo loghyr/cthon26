@@ -216,6 +216,8 @@ cat <<\EOF >>$Initfile
 # Use with BSD systems.
 CC=cc
 CFLAGS=`echo -DBSD -DSTDARG`
+# dirdmp accesses opaque DIR struct internals; skip it on modern BSD.
+DIRDMP=
 MOUNT=/sbin/mount
 UMOUNT=/sbin/umount
 EOF
