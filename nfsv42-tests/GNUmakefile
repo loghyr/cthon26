@@ -1,10 +1,11 @@
 # SPDX-FileCopyrightText: 2026 Tom Haynes <loghyr@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause OR GPL-2.0-only
 #
-# Makefile -- build the NFSv4.2 extension tests (BSD make / pmake).
+# GNUmakefile -- build the NFSv4.2 extension tests (GNU make).
 #
-# BSD make (FreeBSD, NetBSD, etc.) uses this file.  GNU make prefers
-# GNUmakefile (which uses %-pattern rules) over this file.
+# GNU make prefers GNUmakefile over Makefile.  BSD make (FreeBSD,
+# NetBSD, etc.) does not look for GNUmakefile and uses Makefile
+# instead -- see Makefile for the BSD make variant.
 #
 # Targets:
 #   all      build every op_* binary
@@ -19,13 +20,11 @@
 #              Set to an NFS mount path to test over NFS:
 #                 make check CHECK_DIR=/mnt/nfsv42
 
-# Use plain = (not ?=) to override BSD make's built-in CFLAGS default
-# (-O2 -pipe).  Command-line assignments still take precedence.
-CC     = cc
-CFLAGS = -O2 -g -Wall -Wextra -Wno-unused-parameter -std=gnu11
-LDFLAGS ?=
-PREFIX  ?= /usr/local
-libexecdir ?= ${PREFIX}/libexec
+CC        ?= cc
+CFLAGS    ?= -O2 -g -Wall -Wextra -Wno-unused-parameter -std=gnu11
+LDFLAGS   ?=
+PREFIX    ?= /usr/local
+libexecdir ?= $(PREFIX)/libexec
 
 TESTS = op_allocate op_io_advise op_seek op_copy op_deallocate op_clone \
         op_xattr op_statx_btime op_ofd_lock op_lock \
@@ -50,46 +49,41 @@ CHECK_DIR ?= .
 
 .PHONY: all clean check install
 
-all: ${TESTS} ${PROBES}
+all: $(TESTS) $(PROBES)
 
 subr.o: subr.c tests.h
-	${CC} ${CFLAGS} -c subr.c -o subr.o
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# Build each op_<name> from op_<name>.c + subr.o.
-# BSD make .for loop replaces GNU make %-pattern rules.
-# op_deleg_attr (needs -pthread) and op_server_caps (needs rpc_wire.h)
-# are handled with explicit rules below.
-.for T in ${TESTS:Nop_deleg_attr:Nop_server_caps}
-${T}: ${T}.c subr.o tests.h
-	${CC} ${CFLAGS} ${LDFLAGS} ${T}.c subr.o -o ${T}
-.endfor
-
-# op_server_caps uses rpc_wire.h directly (in addition to the standard deps).
-op_server_caps: op_server_caps.c subr.o tests.h rpc_wire.h
-	${CC} ${CFLAGS} ${LDFLAGS} op_server_caps.c subr.o -o op_server_caps
-
-# op_deleg_attr uses pthreads for case 8 (thread-stat-no-callback).
-op_deleg_attr: op_deleg_attr.c subr.o tests.h
-	${CC} ${CFLAGS} ${LDFLAGS} -pthread op_deleg_attr.c subr.o -o op_deleg_attr
+# Pattern rule: build each op_<name> from op_<name>.c + subr.o
+op_%: op_%.c subr.o tests.h
+	$(CC) $(CFLAGS) $(LDFLAGS) $< subr.o -o $@
 
 # Probe tools: standalone binaries, no test harness dependency.
 cb_getattr_probe: cb_getattr_probe.c rpc_wire.h
-	${CC} ${CFLAGS} ${LDFLAGS} cb_getattr_probe.c -o cb_getattr_probe
+	$(CC) $(CFLAGS) $(LDFLAGS) cb_getattr_probe.c -o cb_getattr_probe
 
 cb_recall_probe: cb_recall_probe.c rpc_wire.h
-	${CC} ${CFLAGS} ${LDFLAGS} cb_recall_probe.c -o cb_recall_probe
+	$(CC) $(CFLAGS) $(LDFLAGS) cb_recall_probe.c -o cb_recall_probe
+
+# op_server_caps uses rpc_wire.h directly (in addition to the standard deps)
+op_server_caps: rpc_wire.h
+
+# op_deleg_attr uses pthreads for case 8 (thread-stat-no-callback); override
+# the pattern rule so the link line adds -pthread.
+op_deleg_attr: op_deleg_attr.c subr.o tests.h
+	$(CC) $(CFLAGS) $(LDFLAGS) -pthread $< subr.o -o $@
 
 clean:
-	rm -f ${TESTS} ${PROBES} subr.o
+	rm -f $(TESTS) $(PROBES) subr.o
 	rm -rf *.dSYM
 
 check: all
-	./runtests -d ${CHECK_DIR}
+	./runtests -d $(CHECK_DIR)
 
 # Emit TAP13 aggregate output; pipe to prove or tappy for structured
 # reporting.  Sequential (same -d mount) by design.
 check-tap: all
-	./runtests --tap -d ${CHECK_DIR}
+	./runtests --tap -d $(CHECK_DIR)
 
 # Parallel runs via prove.  Assumes prove is installed and the caller
 # has enough independent -d mounts that tests do not collide on scratch
@@ -97,9 +91,9 @@ check-tap: all
 # Override JOBS on the command line: `make check-prove JOBS=4`.
 JOBS ?= 4
 check-prove: all
-	NFSV42_TESTS_TAP=1 prove -j ${JOBS} -e '' ./op_*
+	NFSV42_TESTS_TAP=1 prove -j $(JOBS) -e '' ./op_*
 
 install: all
-	install -d ${DESTDIR}${libexecdir}/nfsv42-tests
-	install -m 755 ${TESTS} ${PROBES} runtests \
-	        ${DESTDIR}${libexecdir}/nfsv42-tests/
+	install -d $(DESTDIR)$(libexecdir)/nfsv42-tests
+	install -m 755 $(TESTS) $(PROBES) runtests \
+	        $(DESTDIR)$(libexecdir)/nfsv42-tests/
