@@ -12,8 +12,8 @@ DESTDIR=/no/such/path
 COPYFILES=runtests tests.init server domount.c README READWIN.txt Testitems \
 	getopt.c tests.h unixdos.h cthon04.spec
 
-# generate tests.init file
-$(shell ./tests.init.sh $(FSTYPE) $(OS))
+# generate tests.init file (portable: BSD make != and GNU make both support this)
+_TESTS_INIT != sh ./tests.init.sh $(FSTYPE) $(OS) 2>/dev/null; true
 
 include tests.init
 
