@@ -19,8 +19,15 @@
  * older BSDs).
  */
 
+/*
+ * _XOPEN_SOURCE 700 on FreeBSD suppresses __BSD_VISIBLE which hides
+ * SEEK_HOLE/SEEK_DATA.  On FreeBSD leave the default visibility intact;
+ * SEEK_HOLE and SEEK_DATA have been present since FreeBSD 10.
+ */
+#ifndef __FreeBSD__
 #define _XOPEN_SOURCE 700
-#define _GNU_SOURCE /* Linux: SEEK_HOLE/DATA also available on FreeBSD 10+ */
+#endif
+#define _GNU_SOURCE /* Linux: expose SEEK_HOLE/DATA in unistd.h */
 
 #include "tests.h"
 
